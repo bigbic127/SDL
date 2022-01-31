@@ -1,10 +1,18 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <vector>
 #include <iostream>
 
 struct Vector2
 {
 	float x,y;
+};
+
+struct Ball
+{
+	Vector2 pos;
+	Vector2 vec;
+	bool visible;
 };
 
 class PingPong
@@ -31,4 +39,6 @@ class PingPong
 		int stickDir;
 		float stickPosY2;
 		int stickDir2;
+		std::vector<Ball> balls;
+
 };

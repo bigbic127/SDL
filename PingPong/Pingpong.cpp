@@ -1,5 +1,4 @@
 #include "pingpong/Pingpong.hpp"
-#include <random>
 #include "stdlib.h"
 #include "time.h"
 
@@ -9,8 +8,6 @@ PingPong::PingPong():window(nullptr),renderer(nullptr),mIsRunning(true),tickCoun
 
 PingPong::~PingPong()
 {
-    //SDL_DestroyRenderer(renderer);
-    //SDL_DestroyWindow(window);
 }
 
 bool PingPong::Initialize()
@@ -46,7 +43,20 @@ bool PingPong::Initialize()
     stickPosY2 = 600/2;
     stickDir2 = 0;
 
-
+    for(int i = 0;i<5;i++)
+    {   
+        Ball ball;
+        ball.pos.x = 800/2;
+        ball.pos.y = 600/2;
+        srand (time(NULL)*(i+1));
+        int x = 50+rand()%50;
+        srand (time(NULL)+time(NULL)*(i+1));
+        int y = 30+rand()%50;
+        ball.vec.x = x>75?x:x*-1;
+        ball.vec.y = y>55?y:y*-1;
+        ball.visible = true;
+        balls.push_back(ball);
+    }
     return true;
 }
 
@@ -69,9 +79,6 @@ void PingPong::Update()
         deltaTime = 0.05f;
     tickCount = SDL_GetTicks();
 
-    pointPos.x += pointVec.x * deltaTime;
-    pointPos.y += pointVec.y * deltaTime;
-
     if(stickDir>0 && stickPosY > 80)
         stickPosY -= deltaTime * 80;
     else if(stickDir<0 && stickPosY < 520)
@@ -82,24 +89,42 @@ void PingPong::Update()
     else if(stickDir2<0 && stickPosY2 < 520)
         stickPosY2 += deltaTime * 80;
 
-
-    if((pointPos.x < 30 && (pointPos.y + 10 < stickPosY - 60 || pointPos.y - 10 > stickPosY + 60)) || (pointPos.x > 770 && (pointPos.y + 10 < stickPosY2 - 60 || pointPos.y - 10 > stickPosY2 + 60)) )
+    int ballCount = 0;
+    for(Ball &ball : balls)
     {
-        pointPos.x = 400;
-        pointPos.y = 300;
-        srand (time(NULL));
-        int x = 50+rand()%50;
-        srand (time(NULL)+time(NULL));
-        int y = 30+rand()%50;
-        pointVec.x = x>50?x:x*-1;
-        pointVec.y = y>40?y:y*-1;
+        if(!ball.visible)
+        {
+            ballCount++;
+            continue;
+        }
+        ball.pos.x += ball.vec.x * deltaTime;
+        ball.pos.y += ball.vec.y * deltaTime;
+
+        if((ball.pos.x < 30 && (ball.pos.y + 10 < stickPosY - 60 || ball.pos.y - 10 > stickPosY + 60)) || (ball.pos.x > 770 && (ball.pos.y + 10 < stickPosY2 - 60 || ball.pos.y - 10 > stickPosY2 + 60)) )
+                ball.visible = false;
+
+        if(ball.pos.x > 800 - 30 || ball.pos.x < 0 + 30)
+            ball.vec.x *= -1.02f;
+        else if(ball.pos.y > 600 -30 || ball.pos.y < 0 + 30)
+            ball.vec.y *= -1.02f;
     }
 
-    if(pointPos.x > 800 - 30 || pointPos.x < 0 + 30)
-        pointVec.x *= -1.02f;
-    else if(pointPos.y > 600 -30 || pointPos.y < 0 + 30)
-        pointVec.y *= -1.02f;
-
+    if (ballCount ==5)
+    {
+        for(int i = 0;i<5;i++)
+        {   
+            Ball &ball = balls[i];
+            ball.pos.x = 800/2;
+            ball.pos.y = 600/2;
+            srand (time(NULL)*(i+1));
+            int x = 50+rand()%50;
+            srand (time(NULL)+time(NULL)*(i+1));
+            int y = 30+rand()%50;
+            ball.vec.x = x>75?x:x*-1;
+            ball.vec.y = y>55?y:y*-1;
+            ball.visible = true;
+        }
+    }
 }
 
 void PingPong::Input()
@@ -158,12 +183,20 @@ void PingPong::DrawRender()
 
     SDL_SetRenderDrawColor(renderer, 255,0,255,255);
     SDL_Rect point{
-        static_cast<int>(pointPos.x - 20/2),
-        static_cast<int>(pointPos.y - 20/2),
+        0,
+        0,
         20,
         20
     };
-    SDL_RenderFillRect(renderer,&point);
+    for(Ball ball : balls)
+    {
+        if(!ball.visible)
+            continue;
+        point.x = ball.pos.x - 10;
+        point.y = ball.pos.y - 10;
+        SDL_RenderFillRect(renderer,&point);
+    }
+    
     SDL_SetRenderDrawColor(renderer, 0,255,255,255);
     SDL_Rect stick{
         0,
