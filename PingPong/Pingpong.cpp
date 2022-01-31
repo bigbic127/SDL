@@ -30,19 +30,10 @@ bool PingPong::Initialize()
         SDL_Log("Faield to create renderer : %s", SDL_GetError());
         return false;
     }
-    pointPos.x = 800/2;
-    pointPos.y = 600/2; 
-    srand (time(NULL));
-    int x = 50+rand()%50;
-    srand (time(NULL)+time(NULL));
-    int y = 30+rand()%50;
-    pointVec.x = x>50?x:x*-1;
-    pointVec.y = y>40?y:y*-1;
     stickPosY = 600/2;
     stickDir = 0;
     stickPosY2 = 600/2;
     stickDir2 = 0;
-
     for(int i = 0;i<5;i++)
     {   
         Ball ball;

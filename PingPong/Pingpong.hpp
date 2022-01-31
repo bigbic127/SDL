@@ -33,8 +33,6 @@ class PingPong
 		bool mIsRunning;
 		int tickCount;
 		SDL_Event event;
-		Vector2 pointPos;
-		Vector2 pointVec;
 		float stickPosY;
 		int stickDir;
 		float stickPosY2;
