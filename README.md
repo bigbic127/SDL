@@ -1,1 +1,1 @@
-OpenGL 학습
+SDL 학습
